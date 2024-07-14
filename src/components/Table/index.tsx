@@ -230,8 +230,6 @@ const TableComponent: React.FC<TableProps> = ({
     setTooltipCell(null);
   };
 
-  console.log("selecetd", selectedRows);
-
   return (
     <div className={styles.table_container} style={tableContainerStyle}>
       <div
