@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { CSSProperties, useEffect, useMemo, useState } from "react";
+import React, {
+  CSSProperties,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import styles from "./table.module.css";
 import {
   MdArrowDownward,
@@ -8,6 +14,7 @@ import {
   MdOutlineFirstPage,
   MdOutlineLastPage,
 } from "react-icons/md";
+import SearchInput from "../SearchInput";
 
 interface TableProps {
   rows: any[];
@@ -28,7 +35,7 @@ interface TableProps {
   enableSelectionRows?: boolean;
   enableSorting?: boolean;
   enableRowsPerPage?: boolean;
-  enableServerSidePagination?: boolean;
+  enableClientSidePagination?: boolean;
   tableContainerStyle?: CSSProperties;
   tableHeaderStyle?: CSSProperties;
   tableFooterStyle?: CSSProperties;
@@ -42,6 +49,12 @@ interface TableProps {
   >;
   rowsPerPageOptions?: number[];
   count?: number;
+  enableSearch?: boolean;
+  searchValue?: string;
+  searchKey?: string;
+  searchHandleChange?: (value: string) => void;
+  enableCustomNoDataComponent?: boolean;
+  customNoDataComponent?: () => ReactNode;
 }
 
 const TableComponent: React.FC<TableProps> = ({
@@ -54,7 +67,7 @@ const TableComponent: React.FC<TableProps> = ({
   enableSelectionRows = true,
   enableSorting = true,
   enableRowsPerPage = true,
-  enableServerSidePagination = false,
+  enableClientSidePagination = true,
   tableContainerStyle = {},
   tableHeaderStyle = {},
   tableFooterStyle = {},
@@ -62,10 +75,17 @@ const TableComponent: React.FC<TableProps> = ({
   setCurrentPage = () => {},
   rowsPerPage = 20,
   setRowsPerPage = () => {},
-  selectedRows = [],
   setSelectedRows = () => {},
   rowsPerPageOptions = [],
   count = 0,
+  enableSearch = true,
+  searchValue = "",
+  searchKey = "",
+  searchHandleChange = () => {},
+  enableCustomNoDataComponent = false,
+  customNoDataComponent = () => {
+    return <></>;
+  },
 }) => {
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -79,8 +99,11 @@ const TableComponent: React.FC<TableProps> = ({
     rowId: string | number;
     columnId: string;
   } | null>(null);
+  const [selectedRowsPerPage, setSelectedRowsPerPage] = useState<
+    Record<string, Array<string | number>>
+  >({});
 
-  const dataSource = enableServerSidePagination
+  const dataSource = !enableClientSidePagination
     ? serverSideData
     : clientSideData;
 
@@ -98,7 +121,7 @@ const TableComponent: React.FC<TableProps> = ({
   }, [rows, sortConfig]);
 
   useEffect(() => {
-    if (enableServerSidePagination) {
+    if (!enableClientSidePagination) {
       setServerSideData(sortedData);
       setTotalPages(count);
     } else {
@@ -107,10 +130,37 @@ const TableComponent: React.FC<TableProps> = ({
         startIndex,
         startIndex + rowsPerPage
       );
-      setClientSideData(paginatedClientData);
-      setTotalPages(Math.ceil(sortedData.length / rowsPerPage));
+      setClientSideData(
+        searchKey && searchValue
+          ? paginatedClientData?.filter((data) => {
+              const getNestedValue = (obj: any, path: string) => {
+                return path?.split("__")?.reduce((data, id) => {
+                  return data && data[id];
+                }, obj);
+              };
+
+              const valueFromResponse = getNestedValue(data, searchKey)
+                ?.toString()
+                ?.toLowerCase();
+
+              return valueFromResponse?.includes(
+                searchValue?.toString()?.toLowerCase()
+              );
+            })
+          : paginatedClientData
+      );
+
+      setTotalPages(sortedData.length);
     }
-  }, [currentPage, rowsPerPage, enableServerSidePagination, sortedData, count]);
+  }, [
+    currentPage,
+    rowsPerPage,
+    enableClientSidePagination,
+    sortedData,
+    count,
+    searchKey,
+    searchValue,
+  ]);
 
   const handleSort = (key: string) => {
     let direction: "ascending" | "descending" = "ascending";
@@ -125,25 +175,51 @@ const TableComponent: React.FC<TableProps> = ({
   };
 
   const handleRowSelection = (id: string | number) => {
-    const selectedIndex = selectedRows.indexOf(id);
+    const currentSelectedRows = selectedRowsPerPage?.[currentPage] ?? [];
+    const selectedIndex = currentSelectedRows.indexOf(id);
     let newSelectedRows: Array<string | number>;
 
     if (selectedIndex === -1) {
-      newSelectedRows = [...selectedRows, id];
+      newSelectedRows = [...currentSelectedRows, id];
     } else {
-      newSelectedRows = selectedRows.filter((row) => row !== id);
+      newSelectedRows = currentSelectedRows.filter((row: any) => row !== id);
     }
 
-    setSelectedRows(newSelectedRows);
+    setSelectedRowsPerPage((prev: any) => ({
+      ...prev,
+      [currentPage]: newSelectedRows,
+    }));
   };
 
   const handleSelectAllRows = () => {
-    if (selectedRows.length === dataSource.length) {
-      setSelectedRows([]);
+    const currentSelectedRows = selectedRowsPerPage[currentPage] || [];
+    if (currentSelectedRows.length === dataSource.length) {
+      setSelectedRowsPerPage((prev: any) => ({
+        ...prev,
+        [currentPage]: [],
+      }));
     } else {
-      setSelectedRows(dataSource.map((row) => row.id));
+      setSelectedRowsPerPage((prev: any) => ({
+        ...prev,
+        [currentPage]: dataSource.map((row) => row.id),
+      }));
     }
   };
+
+  // Derived state for combined selected rows
+  const combinedSelectedRows = useMemo(
+    () =>
+      Object.values(selectedRowsPerPage).reduce(
+        (acc: any, rows) => acc.concat(rows),
+        []
+      ),
+    [selectedRowsPerPage]
+  );
+
+  // You can use combinedSelectedRows in any way you need, for example, logging:
+  useEffect(() => {
+    setSelectedRows(combinedSelectedRows);
+  }, [combinedSelectedRows, setSelectedRows]);
 
   const getSortIconClassName = (columnId: string) => {
     if (sortConfig && sortConfig.key === columnId) {
@@ -176,8 +252,8 @@ const TableComponent: React.FC<TableProps> = ({
         <div className={styles.row}>
           <p>
             {`${(currentPage - 1) * rowsPerPage + 1}-${
-              isLastPage ? sortedData.length : currentPage * rowsPerPage
-            } of ${sortedData.length}`}
+              isLastPage ? totalPages : currentPage * rowsPerPage
+            } of ${totalPages}`}
           </p>
         </div>
         <div className={styles.pagination_actions}>
@@ -199,20 +275,22 @@ const TableComponent: React.FC<TableProps> = ({
           />
           <MdKeyboardArrowRight
             onClick={() =>
-              currentPage < totalPages && setCurrentPage(currentPage + 1)
+              currentPage < Math.ceil(totalPages / rowsPerPage) &&
+              setCurrentPage(currentPage + 1)
             }
             className={
-              currentPage === totalPages
+              currentPage >= Math.ceil(totalPages / rowsPerPage)
                 ? styles.pagination_icon_disabled
                 : styles.pagination_icon
             }
           />
           <MdOutlineLastPage
             onClick={() =>
-              currentPage < totalPages && setCurrentPage(totalPages)
+              currentPage < Math.ceil(totalPages / rowsPerPage) &&
+              setCurrentPage(Math.max(0, Math.ceil(totalPages / rowsPerPage)))
             }
             className={
-              currentPage === totalPages
+              currentPage >= Math.ceil(totalPages / rowsPerPage)
                 ? styles.pagination_icon_disabled
                 : styles.pagination_icon
             }
@@ -231,117 +309,169 @@ const TableComponent: React.FC<TableProps> = ({
   };
 
   return (
-    <div className={styles.table_container} style={tableContainerStyle}>
-      <div
-        className={styles.table_wrapper}
-        style={{ width: tableWidth, height: tableHeight }}
-      >
-        <table className={styles.table}>
-          <thead
-            className={
-              enableStickyHeader
-                ? `${styles.header} ${styles.header_sticky}`
-                : styles.header
-            }
-          >
-            <tr>
-              {enableSelectionRows && (
-                <th className={styles.header_cell} style={tableHeaderStyle}>
-                  <input
-                    type="checkbox"
-                    onChange={handleSelectAllRows}
-                    checked={
-                      dataSource.length > 0 &&
-                      selectedRows.length === dataSource.length
-                    }
-                  />
-                </th>
-              )}
-              {columns.map((column) => (
-                <th
-                  key={column.id}
-                  onClick={() => enableSorting && handleSort(column.id)}
-                  className={styles.header_cell}
-                  style={tableHeaderStyle}
-                >
-                  <div className={styles.row}>
-                    {column.label}
-                    {sortConfig?.key === column.id && enableSorting && (
-                      <div className={getSortIconClassName(column.id)}>
-                        <MdArrowDownward className={styles.sort_icon} />
-                      </div>
-                    )}
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {dataSource.map((row) => {
-              const getNestedValue = (obj: any, path: string) =>
-                path.split("__").reduce((data, id) => data && data[id], obj);
-
-              return (
-                <tr key={row.id}>
-                  {enableSelectionRows && (
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={selectedRows.includes(row.id)}
-                        onChange={() => handleRowSelection(row.id)}
-                      />
-                    </td>
-                  )}
-                  {columns.map((column) => {
-                    const cellValue = getNestedValue(row, column.id);
-                    const shouldTruncate =
-                      column?.truncate?.enable &&
-                      typeof cellValue === "string" &&
-                      cellValue.length > column.truncate.length;
-
-                    const truncatedText = shouldTruncate
-                      ? `${cellValue.slice(0, column?.truncate?.length)}...`
-                      : "";
-
-                    return (
-                      <td key={column.id}>
-                        <div
-                          className={styles.tooltip_wrapper}
-                          onMouseEnter={() =>
-                            shouldTruncate &&
-                            handleMouseEnter(row.id, column.id)
-                          }
-                          onMouseLeave={handleMouseLeave}
-                        >
-                          <span>
-                            {column.render
-                              ? column.render(row)
-                              : truncatedText || cellValue}
-                          </span>
-                          {tooltipCell &&
-                            tooltipCell.rowId === row.id &&
-                            tooltipCell.columnId === column.id && (
-                              <div className={styles.tooltip}>{cellValue}</div>
-                            )}
+    <div style={{ width: "100%" }}>
+      {enableSearch && (
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "flex-end",
+            margin: "24px 0px",
+          }}
+        >
+          <SearchInput
+            value={searchValue}
+            onChange={(value: string) => searchHandleChange(value)}
+          />
+        </div>
+      )}
+      <div className={styles.table_container} style={tableContainerStyle}>
+        <div
+          className={styles.table_wrapper}
+          style={{ width: tableWidth, height: tableHeight }}
+        >
+          <table className={styles.table}>
+            <thead
+              className={
+                enableStickyHeader
+                  ? `${styles.header} ${styles.header_sticky}`
+                  : styles.header
+              }
+            >
+              <tr>
+                {enableSelectionRows && (
+                  <th className={styles.header_cell} style={tableHeaderStyle}>
+                    <input
+                      type="checkbox"
+                      onChange={handleSelectAllRows}
+                      checked={
+                        (dataSource.length > 0 &&
+                          selectedRowsPerPage[currentPage]?.length ===
+                            dataSource.length) ||
+                        false
+                      }
+                    />
+                  </th>
+                )}
+                {columns.map((column) => (
+                  <th
+                    key={column.id}
+                    onClick={() => enableSorting && handleSort(column.id)}
+                    className={styles.header_cell}
+                    style={tableHeaderStyle}
+                  >
+                    <div className={styles.row}>
+                      {column.label}
+                      {sortConfig?.key === column.id && enableSorting && (
+                        <div className={getSortIconClassName(column.id)}>
+                          <MdArrowDownward className={styles.sort_icon} />
                         </div>
-                      </td>
-                    );
-                  })}
+                      )}
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {dataSource?.length > 0 ? (
+                dataSource.map((row) => {
+                  const getNestedValue = (obj: any, path: string) =>
+                    path
+                      .split("__")
+                      .reduce((data, id) => data && data[id], obj);
+
+                  return (
+                    <tr key={row.id}>
+                      {enableSelectionRows && (
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={
+                              selectedRowsPerPage[currentPage]?.includes(
+                                row.id
+                              ) || false
+                            }
+                            onChange={() => handleRowSelection(row.id)}
+                          />
+                        </td>
+                      )}
+                      {columns.map((column) => {
+                        const cellValue = getNestedValue(row, column.id);
+                        const shouldTruncate =
+                          column?.truncate?.enable &&
+                          typeof cellValue === "string" &&
+                          cellValue.length > column.truncate.length;
+
+                        const truncatedText = shouldTruncate
+                          ? `${cellValue.slice(0, column?.truncate?.length)}...`
+                          : "";
+
+                        return (
+                          <td key={column.id}>
+                            <div
+                              className={styles.tooltip_wrapper}
+                              onMouseEnter={() =>
+                                shouldTruncate &&
+                                handleMouseEnter(row.id, column.id)
+                              }
+                              onMouseLeave={handleMouseLeave}
+                            >
+                              <span>
+                                {column.render
+                                  ? column.render(row)
+                                  : truncatedText || cellValue}
+                              </span>
+                              {tooltipCell &&
+                                tooltipCell.rowId === row.id &&
+                                tooltipCell.columnId === column.id && (
+                                  <div className={styles.tooltip}>
+                                    {cellValue}
+                                  </div>
+                                )}
+                            </div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr className={styles.no_data_row} style={{ border: "none" }}>
+                  <td
+                    colSpan={columns?.length + 1}
+                    style={{
+                      height: "100%",
+                      textAlign: "center",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: `calc(${tableHeight} - 10vh)`,
+                      }}
+                    >
+                      {enableCustomNoDataComponent
+                        ? customNoDataComponent()
+                        : "No Data"}
+                    </div>
+                  </td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      <div
-        className={
-          enablePagination
-            ? styles.footer
-            : `${styles.footer} ${styles.footer_disabled}`
-        }
-        style={tableFooterStyle}
-      >
-        {renderPagination()}
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div
+          className={
+            enablePagination
+              ? styles.footer
+              : `${styles.footer} ${styles.footer_disabled}`
+          }
+          style={tableFooterStyle}
+        >
+          {renderPagination()}
+        </div>
       </div>
     </div>
   );

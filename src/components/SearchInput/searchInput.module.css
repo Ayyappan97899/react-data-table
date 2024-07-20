@@ -1,0 +1,33 @@
+.search-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  padding: 14px 100px 14px 14px;
+  border: 1px solid #cdcdcd;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.search-submit-button {
+  position: absolute;
+  right: 0;
+  border: none;
+  background: none;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.search-clear-button {
+  position: absolute;
+  right: 40px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #999;
+}

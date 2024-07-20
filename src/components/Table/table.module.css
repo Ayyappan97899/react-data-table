@@ -207,3 +207,7 @@ input[type="checkbox"] {
   visibility: visible; /* Make visible on hover */
   transform: translateY(0); /* Move to original position */
 }
+
+.no_data_row:hover {
+  background-color: #ffffff;
+}

@@ -23,6 +23,7 @@ const App: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [selectedRow, setSelectedRow] = useState<any | null>(null);
   const [selectedRows, setSelectedRows] = useState<Array<string | number>>([]);
+  const [searchValue, setSearchValue] = useState<string>("");
 
   const actions = [
     {
@@ -130,7 +131,9 @@ const App: React.FC = () => {
   ];
 
   useEffect(() => {
-    fetch(`https://api.artic.edu/api/v1/artworks/search?q=&limit=${20}`)
+    fetch(
+      `https://api.artic.edu/api/v1/artworks/search?q=&limit=${20}&page=${currentPage}&q=${searchValue}`
+    )
       .then((response) => response.json())
       .then((json) =>
         setList({
@@ -141,7 +144,11 @@ const App: React.FC = () => {
           },
         })
       );
-  }, [currentPage, rowsPerPage]);
+  }, [currentPage, rowsPerPage, searchValue]);
+
+  const searchHandleChange = (value: string) => {
+    setSearchValue(value);
+  };
 
   return (
     <div
@@ -154,16 +161,30 @@ const App: React.FC = () => {
     >
       <TableComponent
         columns={columns}
-        rows={list.data || []}
+        rows={list?.data || []}
         tableWidth="100%"
         tableHeight="70vh"
+        enableClientSidePagination={false}
+        count={list?.pagination?.total}
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
         rowsPerPage={rowsPerPage}
         setRowsPerPage={setRowsPerPage}
         selectedRows={selectedRows}
         setSelectedRows={setSelectedRows}
-        rowsPerPageOptions={[10, 20]}
+        rowsPerPageOptions={[20]}
+        searchValue={searchValue}
+        searchHandleChange={searchHandleChange}
+        searchKey="title"
+        enableCustomNoDataComponent
+        customNoDataComponent={() => {
+          return (
+            <img
+              style={{ width: "240px", height: "240px", objectFit: "cover" }}
+              src="https://static.vecteezy.com/system/resources/previews/009/007/126/non_2x/document-file-not-found-search-no-result-concept-illustration-flat-design-eps10-modern-graphic-element-for-landing-page-empty-state-ui-infographic-icon-vector.jpg"
+            />
+          );
+        }}
       />
     </div>
   );
