@@ -6,13 +6,6 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import {
-  MdArrowDownward,
-  MdChevronLeft,
-  MdKeyboardArrowRight,
-  MdOutlineFirstPage,
-  MdOutlineLastPage,
-} from "react-icons/md";
 import SearchInput from "../SearchInput";
 import styled from "styled-components";
 
@@ -424,14 +417,38 @@ const Table: React.FC<TableProps> = ({
             disabled={currentPage === 1}
             onClick={() => currentPage !== 1 && setCurrentPage(1)}
           >
-            <MdOutlineFirstPage style={{ fontSize: "20px" }} />
+            <svg
+              stroke="currentColor"
+              fill="currentColor"
+              stroke-width="0"
+              viewBox="0 0 24 24"
+              height="1em"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ fontSize: "20px" }}
+            >
+              <path fill="none" d="M24 0v24H0V0h24z" opacity=".87"></path>
+              <path d="M18.41 16.59 13.82 12l4.59-4.59L17 6l-6 6 6 6 1.41-1.41zM6 6h2v12H6V6z"></path>
+            </svg>
           </PaginationIcon>
 
           <PaginationIcon
             disabled={currentPage === 1}
             onClick={() => currentPage !== 1 && setCurrentPage(currentPage - 1)}
           >
-            <MdChevronLeft style={{ fontSize: "20px" }} />
+            <svg
+              stroke="currentColor"
+              fill="currentColor"
+              stroke-width="0"
+              viewBox="0 0 24 24"
+              height="1em"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ fontSize: "20px" }}
+            >
+              <path fill="none" d="M0 0h24v24H0z"></path>
+              <path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path>
+            </svg>
           </PaginationIcon>
 
           <PaginationIcon
@@ -441,7 +458,19 @@ const Table: React.FC<TableProps> = ({
               setCurrentPage(currentPage + 1)
             }
           >
-            <MdKeyboardArrowRight style={{ fontSize: "20px" }} />
+            <svg
+              stroke="currentColor"
+              fill="currentColor"
+              stroke-width="0"
+              viewBox="0 0 24 24"
+              height="1em"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ fontSize: "20px" }}
+            >
+              <path fill="none" d="M0 0h24v24H0V0z"></path>
+              <path d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"></path>
+            </svg>
           </PaginationIcon>
 
           <PaginationIcon
@@ -451,7 +480,19 @@ const Table: React.FC<TableProps> = ({
               setCurrentPage(Math.max(0, Math.ceil(totalPages / rowsPerPage)))
             }
           >
-            <MdOutlineLastPage style={{ fontSize: "20px" }} />
+            <svg
+              stroke="currentColor"
+              fill="currentColor"
+              stroke-width="0"
+              viewBox="0 0 24 24"
+              height="1em"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ fontSize: "20px" }}
+            >
+              <path fill="none" d="M0 0h24v24H0V0z" opacity=".87"></path>
+              <path d="M5.59 7.41 10.18 12l-4.59 4.59L7 18l6-6-6-6-1.41 1.41zM16 6h2v12h-2V6z"></path>
+            </svg>
           </PaginationIcon>
         </PaginationActions>
       </Pagination>
@@ -522,7 +563,18 @@ const Table: React.FC<TableProps> = ({
                             sortConfig.direction === "ascending" ? "up" : "down"
                           }
                         >
-                          <MdArrowDownward />
+                          <svg
+                            stroke="currentColor"
+                            fill="currentColor"
+                            stroke-width="0"
+                            viewBox="0 0 24 24"
+                            height="1em"
+                            width="1em"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="m20 12-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"></path>
+                          </svg>
                         </SortIcon>
                       )}
                     </FlexRow>
