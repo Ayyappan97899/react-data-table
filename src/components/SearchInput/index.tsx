@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from "react";
-import styles from "./searchInput.module.css";
+import styled from "styled-components";
 
 interface SearchInputProps {
   value: string;
@@ -8,6 +8,42 @@ interface SearchInputProps {
   placeholder?: string;
   debounceTime?: number; // Optional debounce time in milliseconds
 }
+
+// styles
+
+const SearchInputContainer = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 100%;
+`;
+
+const StyledSearchInput = styled.input`
+  width: 100%;
+  padding: 14px 100px 14px 14px;
+  border: 1px solid #cdcdcd;
+  border-radius: 8px;
+  font-size: 16px;
+`;
+
+const SearchSubmitButton = styled.button`
+  position: absolute;
+  right: 0;
+  border: none;
+  background: none;
+  padding: 8px;
+  cursor: pointer;
+`;
+
+const SearchClearButton = styled.button`
+  position: absolute;
+  right: 40px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #999;
+`;
 
 const SearchInput: React.FC<SearchInputProps> = ({
   value,
@@ -45,23 +81,17 @@ const SearchInput: React.FC<SearchInputProps> = ({
   };
 
   return (
-    <div className={styles?.["search-input-container"]}>
-      <input
+    <SearchInputContainer>
+      <StyledSearchInput
         type="text"
         value={inputValue}
         onChange={handleChange}
         placeholder={placeholder}
-        className={styles?.["search-input"]}
       />
       {inputValue && (
-        <button
-          onClick={handleClear}
-          className={styles?.["search-clear-button"]}
-        >
-          &times;
-        </button>
+        <SearchClearButton onClick={handleClear}>&times;</SearchClearButton>
       )}
-      <button className={styles?.["search-submit-button"]}>
+      <SearchSubmitButton>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -79,8 +109,8 @@ const SearchInput: React.FC<SearchInputProps> = ({
           <circle cx="11" cy="11" r="8" />
           <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
-      </button>
-    </div>
+      </SearchSubmitButton>
+    </SearchInputContainer>
   );
 };
 

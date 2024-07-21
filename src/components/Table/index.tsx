@@ -6,7 +6,6 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import styles from "./table.module.css";
 import {
   MdArrowDownward,
   MdChevronLeft,
@@ -15,6 +14,7 @@ import {
   MdOutlineLastPage,
 } from "react-icons/md";
 import SearchInput from "../SearchInput";
+import styled from "styled-components";
 
 interface TableProps {
   rows: any[];
@@ -55,6 +55,178 @@ interface TableProps {
   enableCustomNoDataComponent?: boolean;
   customNoDataComponent?: () => ReactNode;
 }
+
+// styles
+
+const TableContainer = styled.div`
+  font-family: "Maven Pro", sans-serif;
+  border-radius: 8px;
+  border: 1px solid #cdcdcd;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+`;
+
+const TableWrapper = styled.div`
+  width: 100%;
+  overflow-x: auto; /* Enable horizontal scrolling for small screens */
+`;
+
+const StyledTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+`;
+
+const TableHeader = styled.thead`
+  background: #f5f6f8;
+  border-bottom: 1px solid #cdcdcd;
+`;
+
+const HeaderCell = styled.th`
+  padding: 12px;
+  text-align: left;
+  white-space: nowrap; /* Prevent text from wrapping */
+  font-size: 14px;
+  font-weight: 500;
+  color: #282828;
+  width: auto;
+
+  &:first-child {
+    width: 40px; /* Adjust width for checkbox column */
+    text-align: center;
+  }
+
+  &:not(:first-child) {
+    width: calc(
+      (100% - 40px) / 3
+    ); /* Distribute the remaining width equally among other columns */
+  }
+`;
+
+const Cell = styled.td`
+  padding: 12px;
+  text-align: left;
+  white-space: nowrap; /* Prevent text from wrapping */
+  color: #333333;
+  font-size: 14px;
+
+  &:first-child {
+    width: 40px; /* Adjust width for checkbox column */
+    text-align: center;
+  }
+
+  &:not(:first-child) {
+    width: calc(
+      (100% - 40px) / 3
+    ); /* Distribute the remaining width equally among other columns */
+  }
+`;
+
+const TableRow = styled.tr`
+  border-bottom: 1px solid #cdcdcd;
+
+  &:hover {
+    background-color: #f1f1f1;
+  }
+`;
+
+const Select = styled.select`
+  margin-left: 10px;
+  border: 1px solid #cdcdcd;
+  background: #ffffff;
+  border-radius: 4px;
+  padding: 3px;
+  outline: none;
+`;
+
+const Checkbox = styled.input.attrs({ type: "checkbox" })`
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+`;
+
+const Footer = styled.div<{ disabled: boolean }>`
+  display: ${(props) => (!props.disabled ? "none" : "flex")};
+  justify-content: flex-end;
+  align-items: center;
+  gap: 24px;
+  padding: 14px;
+  font-size: 14px;
+  position: sticky;
+  bottom: 0;
+  background: #ffffff;
+`;
+
+const Pagination = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 24px;
+`;
+
+const PaginationActions = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
+const PaginationIcon = styled.div<{ disabled: boolean }>`
+  color: ${(props) => (props.disabled ? "#0000008a" : "#000000")};
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  opacity: ${(props) => (props.disabled ? 0.5 : 1)};
+`;
+
+const SortIcon = styled.div<{ direction: "up" | "down" }>`
+  transition: transform 0.3s ease;
+  width: 14px;
+  height: 12px;
+  cursor: pointer;
+  transform: ${(props) =>
+    props.direction === "up" ? "rotate(180deg)" : "rotate(0deg)"};
+`;
+
+const FlexRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const Tooltip = styled.div`
+  background: #333333;
+  margin-top: 1px;
+  padding: 8px;
+  color: white;
+  border-radius: 4px;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1;
+  word-spacing: normal;
+  white-space: normal;
+  overflow-wrap: break-word;
+  max-width: 300px;
+  opacity: 0; /* Hidden by default */
+  visibility: hidden; /* Prevents interaction when hidden */
+  transition: opacity 0.3s ease; /* Smooth transitions */
+  transform: translateY(10px); /* Start slightly lower */
+`;
+
+const TooltipWrapper = styled.div`
+  position: relative;
+  display: inline-block;
+
+  &:hover ${Tooltip} {
+    opacity: 1; /* Fade in */
+    visibility: visible; /* Make visible on hover */
+    transform: translateY(0); /* Move to original position */
+  }
+`;
+
+const NoDataRow = styled.tr`
+  &:hover {
+    background-color: #ffffff;
+  }
+`;
 
 const Table: React.FC<TableProps> = ({
   rows,
@@ -220,23 +392,14 @@ const Table: React.FC<TableProps> = ({
     setSelectedRows(combinedSelectedRows);
   }, [combinedSelectedRows, setSelectedRows]);
 
-  const getSortIconClassName = (columnId: string) => {
-    if (sortConfig && sortConfig.key === columnId) {
-      return sortConfig.direction === "ascending"
-        ? `${styles.sort_icon} ${styles.up}`
-        : `${styles.sort_icon} ${styles.down}`;
-    }
-    return `${styles.sort_icon}`;
-  };
-
   const renderPagination = () => {
     const isLastPage = currentPage * rowsPerPage >= totalPages;
     return (
-      <div className={styles.pagination}>
+      <Pagination>
         {enableRowsPerPage && rowsPerPageOptions.length > 1 && (
-          <div className={styles.row}>
-            <p>Rows per page:</p>
-            <select
+          <FlexRow>
+            <p style={{ margin: "0px" }}>Rows per page:</p>
+            <Select
               value={rowsPerPage}
               onChange={(e) => setRowsPerPage(Number(e.target.value))}
             >
@@ -245,57 +408,52 @@ const Table: React.FC<TableProps> = ({
                   {value}
                 </option>
               ))}
-            </select>
-          </div>
+            </Select>
+          </FlexRow>
         )}
-        <div className={styles.row}>
-          <p>
+        <FlexRow>
+          <p style={{ margin: "0px" }}>
             {`${(currentPage - 1) * rowsPerPage + 1}-${
               isLastPage ? totalPages : currentPage * rowsPerPage
             } of ${totalPages}`}
           </p>
-        </div>
-        <div className={styles.pagination_actions}>
-          <MdOutlineFirstPage
+        </FlexRow>
+        <PaginationActions>
+          <PaginationIcon
+            disabled={currentPage === 1}
             onClick={() => currentPage !== 1 && setCurrentPage(1)}
-            className={
-              currentPage === 1
-                ? styles.pagination_icon_disabled
-                : styles.pagination_icon
-            }
-          />
-          <MdChevronLeft
+          >
+            <MdOutlineFirstPage style={{ fontSize: "20px" }} />
+          </PaginationIcon>
+
+          <PaginationIcon
+            disabled={currentPage === 1}
             onClick={() => currentPage !== 1 && setCurrentPage(currentPage - 1)}
-            className={
-              currentPage === 1
-                ? styles.pagination_icon_disabled
-                : styles.pagination_icon
-            }
-          />
-          <MdKeyboardArrowRight
+          >
+            <MdChevronLeft style={{ fontSize: "20px" }} />
+          </PaginationIcon>
+
+          <PaginationIcon
+            disabled={currentPage >= Math.ceil(totalPages / rowsPerPage)}
             onClick={() =>
               currentPage < Math.ceil(totalPages / rowsPerPage) &&
               setCurrentPage(currentPage + 1)
             }
-            className={
-              currentPage >= Math.ceil(totalPages / rowsPerPage)
-                ? styles.pagination_icon_disabled
-                : styles.pagination_icon
-            }
-          />
-          <MdOutlineLastPage
+          >
+            <MdKeyboardArrowRight style={{ fontSize: "20px" }} />
+          </PaginationIcon>
+
+          <PaginationIcon
+            disabled={currentPage >= Math.ceil(totalPages / rowsPerPage)}
             onClick={() =>
               currentPage < Math.ceil(totalPages / rowsPerPage) &&
               setCurrentPage(Math.max(0, Math.ceil(totalPages / rowsPerPage)))
             }
-            className={
-              currentPage >= Math.ceil(totalPages / rowsPerPage)
-                ? styles.pagination_icon_disabled
-                : styles.pagination_icon
-            }
-          />
-        </div>
-      </div>
+          >
+            <MdOutlineLastPage style={{ fontSize: "20px" }} />
+          </PaginationIcon>
+        </PaginationActions>
+      </Pagination>
     );
   };
 
@@ -324,23 +482,20 @@ const Table: React.FC<TableProps> = ({
           />
         </div>
       )}
-      <div
-        className={styles.table_container}
-        style={{ ...tableContainerStyle, width: tableWidth }}
-      >
-        <div className={styles.table_wrapper} style={{ height: tableHeight }}>
-          <table className={styles.table}>
-            <thead
-              className={
+      <TableContainer style={{ ...tableContainerStyle, width: tableWidth }}>
+        <TableWrapper style={{ height: tableHeight }}>
+          <StyledTable>
+            <TableHeader
+              style={
                 enableStickyHeader
-                  ? `${styles.header} ${styles.header_sticky}`
-                  : styles.header
+                  ? { position: "sticky", top: 0, zIndex: 1 }
+                  : {}
               }
             >
-              <tr>
+              <TableRow>
                 {enableSelectionRows && (
-                  <th className={styles.header_cell} style={tableHeaderStyle}>
-                    <input
+                  <HeaderCell style={tableHeaderStyle}>
+                    <Checkbox
                       type="checkbox"
                       onChange={handleSelectAllRows}
                       checked={
@@ -350,27 +505,30 @@ const Table: React.FC<TableProps> = ({
                         false
                       }
                     />
-                  </th>
+                  </HeaderCell>
                 )}
                 {columns.map((column) => (
-                  <th
+                  <HeaderCell
                     key={column.id}
                     onClick={() => enableSorting && handleSort(column.id)}
-                    className={styles.header_cell}
                     style={tableHeaderStyle}
                   >
-                    <div className={styles.row}>
+                    <FlexRow>
                       {column.label}
                       {sortConfig?.key === column.id && enableSorting && (
-                        <div className={getSortIconClassName(column.id)}>
-                          <MdArrowDownward className={styles.sort_icon} />
-                        </div>
+                        <SortIcon
+                          direction={
+                            sortConfig.direction === "ascending" ? "up" : "down"
+                          }
+                        >
+                          <MdArrowDownward />
+                        </SortIcon>
                       )}
-                    </div>
-                  </th>
+                    </FlexRow>
+                  </HeaderCell>
                 ))}
-              </tr>
-            </thead>
+              </TableRow>
+            </TableHeader>
             <tbody>
               {dataSource?.length > 0 ? (
                 dataSource.map((row) => {
@@ -380,10 +538,10 @@ const Table: React.FC<TableProps> = ({
                       .reduce((data, id) => data && data[id], obj);
 
                   return (
-                    <tr key={row.id}>
+                    <TableRow key={row.id}>
                       {enableSelectionRows && (
-                        <td>
-                          <input
+                        <Cell>
+                          <Checkbox
                             type="checkbox"
                             checked={
                               selectedRowsPerPage[currentPage]?.includes(
@@ -392,7 +550,7 @@ const Table: React.FC<TableProps> = ({
                             }
                             onChange={() => handleRowSelection(row.id)}
                           />
-                        </td>
+                        </Cell>
                       )}
                       {columns.map((column) => {
                         const cellValue = getNestedValue(row, column.id);
@@ -406,9 +564,8 @@ const Table: React.FC<TableProps> = ({
                           : "";
 
                         return (
-                          <td key={column.id}>
-                            <div
-                              className={styles.tooltip_wrapper}
+                          <Cell key={column.id}>
+                            <TooltipWrapper
                               onMouseEnter={() =>
                                 shouldTruncate &&
                                 handleMouseEnter(row.id, column.id)
@@ -423,20 +580,18 @@ const Table: React.FC<TableProps> = ({
                               {tooltipCell &&
                                 tooltipCell.rowId === row.id &&
                                 tooltipCell.columnId === column.id && (
-                                  <div className={styles.tooltip}>
-                                    {cellValue}
-                                  </div>
+                                  <Tooltip>{cellValue}</Tooltip>
                                 )}
-                            </div>
-                          </td>
+                            </TooltipWrapper>
+                          </Cell>
                         );
                       })}
-                    </tr>
+                    </TableRow>
                   );
                 })
               ) : (
-                <tr className={styles.no_data_row} style={{ border: "none" }}>
-                  <td
+                <NoDataRow>
+                  <Cell
                     colSpan={columns?.length + 1}
                     style={{
                       height: "100%",
@@ -455,23 +610,16 @@ const Table: React.FC<TableProps> = ({
                         ? customNoDataComponent()
                         : "No Data"}
                     </div>
-                  </td>
-                </tr>
+                  </Cell>
+                </NoDataRow>
               )}
             </tbody>
-          </table>
-        </div>
-        <div
-          className={
-            enablePagination
-              ? styles.footer
-              : `${styles.footer} ${styles.footer_disabled}`
-          }
-          style={tableFooterStyle}
-        >
+          </StyledTable>
+        </TableWrapper>
+        <Footer disabled={enablePagination} style={tableFooterStyle}>
           {renderPagination()}
-        </div>
-      </div>
+        </Footer>
+      </TableContainer>
     </div>
   );
 };

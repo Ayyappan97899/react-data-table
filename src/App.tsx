@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
-import TableComponent from "./components/Table";
 import { MdOutlineMoreVert } from "react-icons/md";
+import Table from "./components/Table";
 
 const App: React.FC = () => {
   const [list, setList] = useState<{
@@ -130,7 +130,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     fetch(
-      `https://api.artic.edu/api/v1/artworks/search?q=&limit=${20}&page=${currentPage}&q=${searchValue}`
+      `https://api.artic.edu/api/v1/artworks/search?q=&limit=${rowsPerPage}&page=${currentPage}&q=${searchValue}`
     )
       .then((response) => response.json())
       .then((json) =>
@@ -157,7 +157,7 @@ const App: React.FC = () => {
         padding: "24px",
       }}
     >
-      <TableComponent
+      <Table
         columns={columns}
         rows={list?.data || []}
         tableWidth="100%"
@@ -170,7 +170,7 @@ const App: React.FC = () => {
         setRowsPerPage={setRowsPerPage}
         selectedRows={selectedRows}
         setSelectedRows={setSelectedRows}
-        rowsPerPageOptions={[20]}
+        rowsPerPageOptions={[10, 20]}
         searchKey="thumbnail__alt_text"
         searchValue={searchValue}
         searchHandleChange={searchHandleChange}
