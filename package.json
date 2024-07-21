@@ -3,6 +3,27 @@
   "private": false,
   "description": "react-data-table is a flexible, lightweight, and feature-rich React component for displaying tabular data. It includes functionalities such as sorting, searching, pagination, and row selection, making it suitable for a variety of use cases.",
   "version": "1.0.0",
+  "keywords": [
+    "lightweight",
+    "react",
+    "table",
+    "datatable",
+    "react-table",
+    "data-grid",
+    "react-component",
+    "pagination",
+    "sorting",
+    "search",
+    "customizable",
+    "UI",
+    "data-visualization"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ayyappan97899/react-data-table"
+  },
+  "license": "MIT",
+  "author": "ayyappan97899",
   "main": "dist/index.umd.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
