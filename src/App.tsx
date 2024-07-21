@@ -51,16 +51,14 @@ const App: React.FC = () => {
     {
       id: "title",
       label: "Title",
-      width: 300,
       truncate: {
         enable: true,
-        length: 40,
+        length: 30,
       },
     },
     {
       id: "thumbnail__alt_text",
       label: "Description",
-      width: 300,
       truncate: {
         enable: true,
         length: 40,
@@ -173,18 +171,9 @@ const App: React.FC = () => {
         selectedRows={selectedRows}
         setSelectedRows={setSelectedRows}
         rowsPerPageOptions={[20]}
+        searchKey="thumbnail__alt_text"
         searchValue={searchValue}
         searchHandleChange={searchHandleChange}
-        searchKey="title"
-        enableCustomNoDataComponent
-        customNoDataComponent={() => {
-          return (
-            <img
-              style={{ width: "240px", height: "240px", objectFit: "cover" }}
-              src="https://static.vecteezy.com/system/resources/previews/009/007/126/non_2x/document-file-not-found-search-no-result-concept-illustration-flat-design-eps10-modern-graphic-element-for-landing-page-empty-state-ui-infographic-icon-vector.jpg"
-            />
-          );
-        }}
       />
     </div>
   );

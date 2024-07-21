@@ -21,7 +21,6 @@ interface TableProps {
   columns: {
     id: string;
     label: string;
-    width?: number;
     truncate?: {
       enable: boolean;
       length: number;
@@ -57,11 +56,11 @@ interface TableProps {
   customNoDataComponent?: () => ReactNode;
 }
 
-const TableComponent: React.FC<TableProps> = ({
+const Table: React.FC<TableProps> = ({
   rows,
   columns,
-  tableWidth,
-  tableHeight,
+  tableWidth = "100%",
+  tableHeight = "70vh",
   enableStickyHeader = true,
   enablePagination = true,
   enableSelectionRows = true,
@@ -231,7 +230,7 @@ const TableComponent: React.FC<TableProps> = ({
   };
 
   const renderPagination = () => {
-    const isLastPage = currentPage === totalPages;
+    const isLastPage = currentPage * rowsPerPage >= totalPages;
     return (
       <div className={styles.pagination}>
         {enableRowsPerPage && rowsPerPageOptions.length > 1 && (
@@ -325,11 +324,11 @@ const TableComponent: React.FC<TableProps> = ({
           />
         </div>
       )}
-      <div className={styles.table_container} style={tableContainerStyle}>
-        <div
-          className={styles.table_wrapper}
-          style={{ width: tableWidth, height: tableHeight }}
-        >
+      <div
+        className={styles.table_container}
+        style={{ ...tableContainerStyle, width: tableWidth }}
+      >
+        <div className={styles.table_wrapper} style={{ height: tableHeight }}>
           <table className={styles.table}>
             <thead
               className={
@@ -477,4 +476,4 @@ const TableComponent: React.FC<TableProps> = ({
   );
 };
 
-export default TableComponent;
+export default Table;
