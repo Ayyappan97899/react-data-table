@@ -435,8 +435,3 @@ export default App;
 - **Type**: `() => ReactNode`
 - **Default**: `() => <></>`
 - **Description**: Function to render a custom no data component.
-
-
-## Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request for any changes or enhancements.
