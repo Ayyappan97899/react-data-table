@@ -112,7 +112,7 @@ import { MdOutlineMoreVert } from "react-icons/md";
 const App: React.FC = () => {
   const [list, setList] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(20);
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [searchValue, setSearchValue] = useState("");
@@ -222,7 +222,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     fetch(
-      `https://api.artic.edu/api/v1/artworks/search?q=&limit=${20}&page=${currentPage}&q=${searchValue}`
+      `https://api.artic.edu/api/v1/artworks/search?q=&limit=${rowsPerPage}&page=${currentPage}&q=${searchValue}`
     )
       .then((response) => response.json())
       .then((json) =>
