@@ -107,7 +107,6 @@ Here’s an example of how to integrate `Table` with an API to fetch data:
 ```jsx
 import React, { useEffect, useState } from "react";
 import Table from "react-data-table";
-import { MdOutlineMoreVert } from "react-icons/md";
 
 const App: React.FC = () => {
   const [list, setList] = useState({});
@@ -178,7 +177,14 @@ const App: React.FC = () => {
               }}
               style={{ cursor: "pointer" }}
             >
-              <MdOutlineMoreVert style={{ fontSize: "18px" }} />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="20px" // Adjusting the height
+                viewBox="0 96 960 960"
+                width="20px" // Adjusting the width
+              >
+                <path d="M480 856q-25 0-42.5-17.5T420 796q0-25 17.5-42.5T480 736q25 0 42.5 17.5T540 796q0 25-17.5 42.5T480 856Zm0-240q-25 0-42.5-17.5T420 556q0-25 17.5-42.5T480 496q25 0 42.5                     17.5T540 556q0 25-17.5 42.5T480 616Zm0-240q-25 0-42.5-17.5T420 316q0-25 17.5-42.5T480 256q25 0 42.5 17.5T540 316q0 25-17.5 42.5T480 376Z" />
+              </svg>
             </div>
 
             {isOpen && (
