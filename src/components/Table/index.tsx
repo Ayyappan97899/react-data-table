@@ -161,6 +161,7 @@ const Footer = styled.div<{ disabled: boolean }>`
 const Pagination = styled.div`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 24px;
 `;
 
