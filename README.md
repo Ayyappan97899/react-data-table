@@ -1,6 +1,6 @@
-# react-data-table
+# react-lite-table
 
-`react-data-table` is a flexible, lightweight, and feature-rich React component for displaying tabular data. It includes functionalities such as sorting, searching, pagination, and row selection, making it suitable for a variety of use cases.
+`react-lite-table` is a flexible, lightweight, and feature-rich React component for displaying tabular data. It includes functionalities such as sorting, searching, pagination, and row selection, making it suitable for a variety of use cases.
 
 ## Features
 
@@ -16,7 +16,7 @@
 
 Install the package using npm:
 ```js
-npm install react-data-table
+npm install react-lite-table
 ```
 
 ## Quick Start
@@ -25,7 +25,7 @@ Here’s a simple example of how to use `Table`:
 
 ```jsx
 import React, { useState } from "react";
-import Table from "react-data-table";
+import Table from "react-lite-table";
 
 const App = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -106,7 +106,7 @@ Here’s an example of how to integrate `Table` with an API to fetch data:
 
 ```jsx
 import React, { useEffect, useState } from "react";
-import Table from "react-data-table";
+import Table from "react-lite-table";
 
 const App: React.FC = () => {
   const [list, setList] = useState({});
