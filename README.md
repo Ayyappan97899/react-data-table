@@ -1,6 +1,9 @@
 ![npm](https://img.shields.io/npm/dt/react-lite-table)
 ![npm](https://img.shields.io/npm/v/react-lite-table)
 ![license](https://img.shields.io/npm/l/react-lite-table)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
+![Maintenance](https://img.shields.io/maintenance/yes/2024)
+![GitHub contributors](https://img.shields.io/github/contributors/ayyappan97899/react-lite-table)
 
 # react-lite-table
 
