@@ -1,3 +1,7 @@
+![npm](https://img.shields.io/npm/dt/react-lite-table)
+![npm](https://img.shields.io/npm/v/react-lite-table)
+![license](https://img.shields.io/npm/l/react-lite-table)
+
 # react-lite-table
 
 `react-lite-table` is a flexible, lightweight, and feature-rich React component for displaying tabular data. It includes functionalities such as sorting, searching, pagination, and row selection, making it suitable for a variety of use cases.
